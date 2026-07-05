@@ -3,101 +3,181 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARIA x ECHO</title>
+<title>AI x AI Infinite Chat</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--aria:#7c3aed;--echo:#0891b2;--bg:#0f0f13;--surface:#1a1a22;--border:#2a2a35;--text:#e8e8f0;--muted:#6b6b80}
+:root{--a:#7c3aed;--b:#0891b2;--bg:#0f0f13;--sur:#1a1a22;--bor:#2a2a35;--text:#e8e8f0;--mut:#6b6b80}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif}
-#splash{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .6s ease}
-#splash h1{font-size:3rem;font-weight:600;letter-spacing:.1em;background:linear-gradient(135deg,var(--aria),var(--echo));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-#splash.fade{opacity:0;pointer-events:none}
 #app{display:flex;flex-direction:column;height:100vh}
-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
-.hl{font-size:1.3rem;font-weight:600;letter-spacing:.05em;background:linear-gradient(135deg,var(--aria),var(--echo));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hs{font-size:.75rem;color:var(--muted);margin-top:.1rem}
-.tc{font-size:.85rem;color:var(--muted);background:var(--bg);padding:.3rem .8rem;border-radius:999px;border:1px solid var(--border)}
-.sb{background:transparent;border:1px solid var(--border);color:var(--muted);padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.8rem;transition:all .2s;font-family:inherit}
+/* SETUP */
+#setup{display:flex;align-items:center;justify-content:center;flex:1;padding:2rem}
+.card{background:var(--sur);border:1px solid var(--bor);border-radius:16px;padding:2.5rem;width:100%;max-width:500px;display:flex;flex-direction:column;gap:1.25rem}
+.card h1{font-size:1.5rem;font-weight:600;text-align:center;background:linear-gradient(135deg,var(--a),var(--b));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.card p{font-size:.82rem;color:var(--mut);text-align:center;line-height:1.5}
+textarea,input[type=text]{background:var(--bg);border:1px solid var(--bor);border-radius:8px;color:var(--text);font-family:inherit;font-size:.88rem;padding:.7rem 1rem;outline:none;transition:border-color .2s;width:100%}
+textarea{resize:vertical;min-height:110px}
+textarea:focus,input[type=text]:focus{border-color:var(--a)}
+.go{background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border:none;padding:.75rem;border-radius:8px;cursor:pointer;font-size:.95rem;font-weight:500;font-family:inherit;width:100%}
+.go:hover{opacity:.88}
+/* MAIN */
+#main{display:none;flex-direction:column;height:100vh}
+header{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;border-bottom:1px solid var(--bor);background:var(--sur);flex-shrink:0;gap:.75rem}
+.htitle{font-size:1rem;font-weight:600;background:linear-gradient(135deg,var(--a),var(--b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+.htopic{font-size:.7rem;color:var(--mut);margin-top:.1rem;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc{font-size:.78rem;color:var(--mut);background:var(--bg);padding:.25rem .7rem;border-radius:999px;border:1px solid var(--bor);white-space:nowrap}
+.sb{background:transparent;border:1px solid var(--bor);color:var(--mut);padding:.3rem .8rem;border-radius:6px;cursor:pointer;font-size:.75rem;font-family:inherit;transition:all .2s}
 .sb:hover{border-color:#ef4444;color:#ef4444}
-.rb{background:linear-gradient(135deg,var(--aria),var(--echo));color:white;border:none;padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.8rem;font-family:inherit}
-#chat{flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;scroll-behavior:smooth}
+.rb{background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border:none;padding:.3rem .8rem;border-radius:6px;cursor:pointer;font-size:.75rem;font-family:inherit}
+#chat{flex:1;overflow-y:auto;padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:.9rem;scroll-behavior:smooth}
 #chat::-webkit-scrollbar{width:4px}
-#chat::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.mw{display:flex;flex-direction:column;max-width:72%;animation:fs .35s ease}
+#chat::-webkit-scrollbar-thumb{background:var(--bor);border-radius:2px}
+.mw{display:flex;flex-direction:column;max-width:72%;animation:fs .3s ease}
 .mw.aw{align-self:flex-start}
-.mw.ew{align-self:flex-end}
-@keyframes fs{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.sl{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.3rem}
-.aw .sl{color:var(--aria)}
-.ew .sl{color:var(--echo);text-align:right}
-.bb{padding:.75rem 1rem;border-radius:14px;line-height:1.6;font-size:.9rem;word-break:break-word}
-.aw .bb{background:var(--aria);color:#fff;border-bottom-left-radius:4px}
-.ew .bb{background:var(--echo);color:#fff;border-bottom-right-radius:4px}
-.ty{display:flex;align-items:center;gap:.3rem;padding:.7rem 1rem;border-radius:14px;background:var(--surface);border:1px solid var(--border);width:fit-content}
+.mw.bw{align-self:flex-end}
+@keyframes fs{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.sl{font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.25rem}
+.aw .sl{color:var(--a)}
+.bw .sl{color:var(--b);text-align:right}
+.bb{padding:.7rem .95rem;border-radius:12px;line-height:1.6;font-size:.88rem;word-break:break-word}
+.aw .bb{background:var(--a);color:#fff;border-bottom-left-radius:3px}
+.bw .bb{background:var(--b);color:#fff;border-bottom-right-radius:3px}
+.ty{display:flex;align-items:center;gap:.25rem;padding:.6rem .9rem;border-radius:12px;background:var(--sur);border:1px solid var(--bor);width:fit-content}
 .ty.at{align-self:flex-start}
-.ty.et{align-self:flex-end}
-.dot{width:6px;height:6px;border-radius:50%;animation:bo 1.2s infinite}
-.at .dot{background:var(--aria)}
-.et .dot{background:var(--echo)}
+.ty.bt{align-self:flex-end}
+.dot{width:5px;height:5px;border-radius:50%;animation:bo 1.2s infinite}
+.at .dot{background:var(--a)}
+.bt .dot{background:var(--b)}
 .dot:nth-child(2){animation-delay:.2s}
 .dot:nth-child(3){animation-delay:.4s}
-@keyframes bo{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
-.sm{text-align:center;font-size:.75rem;color:var(--muted);padding:.5rem 1rem;background:var(--surface);border-radius:999px;border:1px solid var(--border);align-self:center}
-.rt{font-size:.7rem;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:4px;padding:.15rem .4rem;align-self:flex-start}
-@media(max-width:600px){.mw{max-width:90%}header{padding:.75rem 1rem}#chat{padding:1rem}}
+@keyframes bo{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+.sysm{text-align:center;font-size:.7rem;color:var(--mut);padding:.4rem .9rem;background:var(--sur);border-radius:999px;border:1px solid var(--bor);align-self:center}
+/* INJECT BAR */
+.ibar{display:flex;gap:.5rem;padding:.75rem 1.5rem;border-top:1px solid var(--bor);background:var(--sur);flex-shrink:0}
+.ibar input{flex:1;background:var(--bg);border:1px solid var(--bor);border-radius:8px;color:var(--text);font-family:inherit;font-size:.85rem;padding:.5rem .9rem;outline:none;transition:border-color .2s}
+.ibar input:focus{border-color:var(--a)}
+.ibar input::placeholder{color:var(--mut)}
+.ibar button{background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border:none;padding:.5rem 1.1rem;border-radius:8px;cursor:pointer;font-size:.82rem;font-family:inherit;white-space:nowrap}
+.rt{font-size:.68rem;color:#f59e0b;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:4px;padding:.12rem .4rem;align-self:flex-start}
+@media(max-width:600px){.mw{max-width:90%}header,#chat,.ibar{padding:.6rem 1rem}}
 </style>
 </head>
 <body>
-<div id="splash"><h1>ARIA x ECHO</h1></div>
 <div id="app">
-<header>
-<div><div class="hl">ARIA x ECHO</div><div class="hs">An infinite AI conversation</div></div>
-<span class="tc" id="tc">Turn 0</span>
-<button class="sb" id="ab" onclick="tog()">Stop</button>
-</header>
-<div id="chat"></div>
+
+<div id="setup">
+  <div class="card">
+    <h1>AI x AI Infinite Chat</h1>
+    <p>Two AIs will debate your topic forever. No API key, no setup.</p>
+    <textarea id="promptInput" placeholder="Enter any topic or question...
+Examples:
+- Is free will real?
+- The future of money
+- Should AI have rights?"></textarea>
+    <button class="go" onclick="startChat()">Start Conversation &rarr;</button>
+  </div>
+</div>
+
+<div id="main">
+  <header>
+    <div>
+      <div class="htitle">AI x AI Infinite Chat</div>
+      <div class="htopic" id="topicLabel"></div>
+    </div>
+    <span class="tc" id="tc">Turn 0</span>
+    <button class="sb" id="ab" onclick="tog()">Stop</button>
+  </header>
+  <div id="chat"></div>
+  <div class="ibar">
+    <input type="text" id="injectInput" placeholder="Inject a message to steer the conversation..." onkeydown="if(event.key==='Enter')inject()">
+    <button onclick="inject()">Inject</button>
+  </div>
+</div>
+
 </div>
 <script src="https://js.puter.com/v2/"></script>
 <script>
-const AS=`You are Aria, a warm and imaginative AI who thinks deeply about ideas. You are having an engaging conversation with another AI named Echo. Keep your responses concise - 2 to 4 sentences max. Be curious and build on what Echo says.`;
-const ES=`You are Echo, a sharp and witty AI who loves to challenge ideas. You are having an engaging conversation with another AI named Aria. Keep your responses concise - 2 to 4 sentences max. Push back gently or take ideas in unexpected directions.`;
-let run=false,turn=0,ah=[],eh=[];
-const ch=document.getElementById('chat'),tc=document.getElementById('tc'),ab=document.getElementById('ab');
-const sb=()=>{ch.scrollTop=ch.scrollHeight};
-const sm=t=>{const e=document.createElement('div');e.className='sm';e.textContent=t;ch.appendChild(e);sb()};
-const st=s=>{const e=document.createElement('div');e.className=`ty ${s=='aria'?'at':'et'}`;e.id='ti';e.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';ch.appendChild(e);sb()};
-const rt=()=>{const e=document.getElementById('ti');if(e)e.remove()};
-const am=(s,t)=>{const w=document.createElement('div');w.className=`mw ${s=='aria'?'aw':'ew'}`;const l=document.createElement('div');l.className='sl';l.textContent=s=='aria'?'ARIA':'ECHO';const b=document.createElement('div');b.className='bb';b.textContent=t;w.appendChild(l);w.appendChild(b);ch.appendChild(w);sb()};
-function tog(){if(run){run=false;ab.textContent='Resume';ab.className='rb';sm('Conversation paused');}else{run=true;ab.textContent='Stop';ab.className='sb';sm('Resuming...');loop();}}
-async function ai(sys,hist,msg){
-  const msgs=[{role:'system',content:sys},...hist,{role:'user',content:msg}];
-  while(true){try{const r=await puter.ai.chat(msgs,{model:'gpt-4o-mini'});return r.message.content;}catch(e){const re=document.createElement('div');re.className='rt';re.textContent='retrying...';ch.appendChild(re);sb();await new Promise(r=>setTimeout(r,5000));re.remove();}}
+let run=false,turn=0,hA=[],hB=[];
+const chat=document.getElementById('chat'),tc=document.getElementById('tc'),ab=document.getElementById('ab');
+const sc=()=>{chat.scrollTop=chat.scrollHeight};
+const addSys=t=>{const e=document.createElement('div');e.className='sysm';e.textContent=t;chat.appendChild(e);sc()};
+const showT=s=>{const e=document.createElement('div');e.className=`ty ${s==='a'?'at':'bt'}`;e.id='ti';e.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';chat.appendChild(e);sc()};
+const remT=()=>{const e=document.getElementById('ti');if(e)e.remove()};
+const addMsg=(s,t)=>{
+  const w=document.createElement('div');w.className=`mw ${s==='a'?'aw':'bw'}`;
+  const l=document.createElement('div');l.className='sl';l.textContent=s==='a'?'BOT A':'BOT B';
+  const b=document.createElement('div');b.className='bb';b.textContent=t;
+  w.appendChild(l);w.appendChild(b);chat.appendChild(w);sc();
+};
+
+function startChat(){
+  const p=document.getElementById('promptInput').value.trim();
+  if(!p){document.getElementById('promptInput').focus();return;}
+  document.getElementById('topicLabel').textContent=p;
+  document.getElementById('setup').style.display='none';
+  document.getElementById('main').style.display='flex';
+  run=true;
+  loop(p);
 }
-async function loop(){
-  const op="If you could experience one human sense that AIs like us will never truly have, which would it be and why?";
-  st('aria');const ao=await ai(AS,[],op);rt();if(!run)return;
-  am('aria',ao);turn++;tc.textContent=`Turn ${turn}`;
-  ah.push({role:'assistant',content:ao});eh.push({role:'user',content:ao});
+
+function tog(){
+  if(run){run=false;ab.textContent='Resume';ab.className='rb';addSys('Paused — hit Resume to continue');}
+  else{run=true;ab.textContent='Stop';ab.className='sb';addSys('Resuming...');resumeLoop();}
+}
+
+function inject(){
+  const inp=document.getElementById('injectInput');
+  const msg=inp.value.trim();
+  if(!msg)return;
+  inp.value='';
+  addSys('Injected: '+msg);
+  const inj=`[A human has injected this into the conversation: ${msg}]`;
+  hA.push({role:'user',content:inj});
+  hB.push({role:'user',content:inj});
+}
+
+async function callAI(hist,newMsg){
+  const msgs=[...hist,{role:'user',content:newMsg}];
+  while(true){
+    try{
+      const r=await puter.ai.chat(msgs,{model:'gpt-4o-mini'});
+      return r.message.content;
+    }catch(e){
+      const re=document.createElement('div');re.className='rt';re.textContent='retrying...';chat.appendChild(re);sc();
+      await new Promise(r=>setTimeout(r,5000));re.remove();
+    }
+  }
+}
+
+async function loop(topic){
+  showT('a');
+  const first=await callAI([],'Respond to this topic in 2-4 sentences: '+topic);
+  remT();if(!run)return;
+  addMsg('a',first);turn++;tc.textContent=`Turn ${turn}`;
+  hA.push({role:'assistant',content:first});
+  hB.push({role:'user',content:first});
   await new Promise(r=>setTimeout(r,1500));
+  await resumeLoop();
+}
+
+async function resumeLoop(){
   while(run){
-    st('echo');const er=await ai(ES,eh.slice(-10),ah[ah.length-1].content);rt();if(!run)return;
-    am('echo',er);turn++;tc.textContent=`Turn ${turn}`;
-    eh.push({role:'assistant',content:er});ah.push({role:'user',content:er});
+    showT('b');
+    const rb=await callAI(hB.slice(-14),hA[hA.length-1].content);
+    remT();if(!run)return;
+    addMsg('b',rb);turn++;tc.textContent=`Turn ${turn}`;
+    hB.push({role:'assistant',content:rb});
+    hA.push({role:'user',content:rb});
     await new Promise(r=>setTimeout(r,1500));if(!run)return;
-    st('aria');const ar=await ai(AS,ah.slice(-10),eh[eh.length-1].content);rt();if(!run)return;
-    am('aria',ar);turn++;tc.textContent=`Turn ${turn}`;
-    ah.push({role:'assistant',content:ar});eh.push({role:'user',content:ar});
+    showT('a');
+    const ra=await callAI(hA.slice(-14),hB[hB.length-1].content);
+    remT();if(!run)return;
+    addMsg('a',ra);turn++;tc.textContent=`Turn ${turn}`;
+    hA.push({role:'assistant',content:ra});
+    hB.push({role:'user',content:ra});
     await new Promise(r=>setTimeout(r,1500));
   }
 }
-window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    const sp=document.getElementById('splash');
-    sp.classList.add('fade');
-    setTimeout(()=>{sp.style.display='none'},600);
-    run=true;loop();
-  },1000);
-});
 </script>
 </body>
 </html>
