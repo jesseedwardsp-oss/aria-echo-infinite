@@ -64,7 +64,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.75
 <div id="setup">
   <div class="card">
     <h1>AI x AI Infinite Chat</h1>
-    <p>Two AIs will debate your topic forever. No API key, no setup.</p>
+    <p>Two GPT-4o AIs will debate your topic forever. No API key, no setup.</p>
     <textarea id="promptInput" placeholder="Enter any topic or question...
 Examples:
 - Is free will real?
@@ -91,7 +91,7 @@ Examples:
 </div>
 <script src="https://js.puter.com/v2/"></script>
 <script>
-const MODEL = 'gpt-4o-mini';
+const MODEL = 'gpt-4o';
 let run=false,turn=0,hA=[],hB=[];
 const chat=document.getElementById('chat'),tc=document.getElementById('tc'),ab=document.getElementById('ab');
 const sc=()=>{chat.scrollTop=chat.scrollHeight};
