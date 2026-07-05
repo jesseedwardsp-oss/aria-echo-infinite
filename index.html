@@ -10,7 +10,6 @@
 :root{--a:#7c3aed;--b:#0891b2;--bg:#0f0f13;--sur:#1a1a22;--bor:#2a2a35;--text:#e8e8f0;--mut:#6b6b80}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif}
 #app{display:flex;flex-direction:column;height:100vh}
-/* SETUP */
 #setup{display:flex;align-items:center;justify-content:center;flex:1;padding:2rem}
 .card{background:var(--sur);border:1px solid var(--bor);border-radius:16px;padding:2.5rem;width:100%;max-width:500px;display:flex;flex-direction:column;gap:1.25rem}
 .card h1{font-size:1.5rem;font-weight:600;text-align:center;background:linear-gradient(135deg,var(--a),var(--b));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -20,7 +19,6 @@ textarea{resize:vertical;min-height:110px}
 textarea:focus,input[type=text]:focus{border-color:var(--a)}
 .go{background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border:none;padding:.75rem;border-radius:8px;cursor:pointer;font-size:.95rem;font-weight:500;font-family:inherit;width:100%}
 .go:hover{opacity:.88}
-/* MAIN */
 #main{display:none;flex-direction:column;height:100vh}
 header{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;border-bottom:1px solid var(--bor);background:var(--sur);flex-shrink:0;gap:.75rem}
 .htitle{font-size:1rem;font-weight:600;background:linear-gradient(135deg,var(--a),var(--b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
@@ -52,7 +50,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.75
 .dot:nth-child(3){animation-delay:.4s}
 @keyframes bo{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
 .sysm{text-align:center;font-size:.7rem;color:var(--mut);padding:.4rem .9rem;background:var(--sur);border-radius:999px;border:1px solid var(--bor);align-self:center}
-/* INJECT BAR */
 .ibar{display:flex;gap:.5rem;padding:.75rem 1.5rem;border-top:1px solid var(--bor);background:var(--sur);flex-shrink:0}
 .ibar input{flex:1;background:var(--bg);border:1px solid var(--bor);border-radius:8px;color:var(--text);font-family:inherit;font-size:.85rem;padding:.5rem .9rem;outline:none;transition:border-color .2s}
 .ibar input:focus{border-color:var(--a)}
@@ -64,11 +61,10 @@ header{display:flex;align-items:center;justify-content:space-between;padding:.75
 </head>
 <body>
 <div id="app">
-
 <div id="setup">
   <div class="card">
     <h1>AI x AI Infinite Chat</h1>
-    <p>Two AIs will debate your topic forever. No API key, no setup.</p>
+    <p>Two Claude AIs will debate your topic forever. No API key, no setup.</p>
     <textarea id="promptInput" placeholder="Enter any topic or question...
 Examples:
 - Is free will real?
@@ -77,7 +73,6 @@ Examples:
     <button class="go" onclick="startChat()">Start Conversation &rarr;</button>
   </div>
 </div>
-
 <div id="main">
   <header>
     <div>
@@ -93,10 +88,10 @@ Examples:
     <button onclick="inject()">Inject</button>
   </div>
 </div>
-
 </div>
 <script src="https://js.puter.com/v2/"></script>
 <script>
+const MODEL = 'claude-3-5-haiku';
 let run=false,turn=0,hA=[],hB=[];
 const chat=document.getElementById('chat'),tc=document.getElementById('tc'),ab=document.getElementById('ab');
 const sc=()=>{chat.scrollTop=chat.scrollHeight};
@@ -109,22 +104,18 @@ const addMsg=(s,t)=>{
   const b=document.createElement('div');b.className='bb';b.textContent=t;
   w.appendChild(l);w.appendChild(b);chat.appendChild(w);sc();
 };
-
 function startChat(){
   const p=document.getElementById('promptInput').value.trim();
   if(!p){document.getElementById('promptInput').focus();return;}
   document.getElementById('topicLabel').textContent=p;
   document.getElementById('setup').style.display='none';
   document.getElementById('main').style.display='flex';
-  run=true;
-  loop(p);
+  run=true;loop(p);
 }
-
 function tog(){
-  if(run){run=false;ab.textContent='Resume';ab.className='rb';addSys('Paused — hit Resume to continue');}
+  if(run){run=false;ab.textContent='Resume';ab.className='rb';addSys('Paused');}
   else{run=true;ab.textContent='Stop';ab.className='sb';addSys('Resuming...');resumeLoop();}
 }
-
 function inject(){
   const inp=document.getElementById('injectInput');
   const msg=inp.value.trim();
@@ -135,12 +126,11 @@ function inject(){
   hA.push({role:'user',content:inj});
   hB.push({role:'user',content:inj});
 }
-
 async function callAI(hist,newMsg){
   const msgs=[...hist,{role:'user',content:newMsg}];
   while(true){
     try{
-      const r=await puter.ai.chat(msgs,{model:'gpt-4o-mini'});
+      const r=await puter.ai.chat(msgs,{model:MODEL});
       return r.message.content;
     }catch(e){
       const re=document.createElement('div');re.className='rt';re.textContent='retrying...';chat.appendChild(re);sc();
@@ -148,7 +138,6 @@ async function callAI(hist,newMsg){
     }
   }
 }
-
 async function loop(topic){
   showT('a');
   const first=await callAI([],'Respond to this topic in 2-4 sentences: '+topic);
@@ -159,7 +148,6 @@ async function loop(topic){
   await new Promise(r=>setTimeout(r,1500));
   await resumeLoop();
 }
-
 async function resumeLoop(){
   while(run){
     showT('b');
